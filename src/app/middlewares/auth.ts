@@ -1,48 +1,54 @@
-import { NextFunction, Request, Response } from 'express';
-import httpStatus from 'http-status-codes';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+
 import config from '../config';
-import catchAsync from '../utils/catchAsync';
-import AppError from '../error/AppError';
-import { userServices } from '../modules/User/user.service';
-import { TUserRole } from '../modules/User/user.interface';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { TUser } from '../modules/User/user.interface';
+import { UserModel } from '../modules/User/user.model';
+import { TLoginUser } from '../modules/auth/auth.interface';
 
-const auth = (...requiredRoles: TUserRole[]) => {
-  return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const authHeader = req.headers.authorization;
-
-    // Checking if the Authorization header is missing
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
-    }
-
-    // Extracting the token from the Authorization header
-    const token = authHeader.split(' ')[1];
-
-    // checking if the given token is valid
-    const decoded = jwt.verify(token, config.secret as string) as JwtPayload;
-    const { role, userId } = decoded;
-
-    // checking if the user is exist
-    const user = await userServices.findAUserInDB(userId);
-
-    if (!user) {
-      throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-    }
-    // checking if the user is blocked
-    const isBlocked = user?.isBlocked;
-
-    if (isBlocked) {
-      throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked !');
-    }
-    if (requiredRoles && !requiredRoles.includes(role)) {
-      throw new AppError(httpStatus.UNAUTHORIZED, 'You cannot access this');
-    }
-
-    req.user = decoded as JwtPayload;
-
-    next();
-  });
+const registerUser = async (payload: TUser) => {
+  const result = await UserModel.create(payload);
+  return result;
 };
+const loginUser = async (payload: TLoginUser) => {
+  const result = await UserModel.findOne({ email: payload.email });
+  if (!result) {
+    throw new Error('User not found');
+  }
 
-export default auth;
+  // Check for password and compare
+  if (!payload.password || !result.password) {
+    throw new Error('Password is incorrect or missing');
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    payload.password,
+    result.password,
+  );
+
+  if (!isPasswordMatch) {
+    throw new Error('Password incorrect');
+  }
+
+  const token = jwt.sign(
+    { email: result.email, role: result.role },
+    config.secret as string,
+    { expiresIn: '2d' },
+  );
+
+  return { token, result };
+};
+const findUserByEmail = async (email: string) => {
+  try {
+    const user = await UserModel.findOne({ email });
+    return user; // Returns the user if found, or null if not
+ 
+  } catch (err: any) {
+    throw new Error('Error checking email in database');
+  }
+};
+export const AuthService = {
+  registerUser,
+  loginUser,
+  findUserByEmail,
+};

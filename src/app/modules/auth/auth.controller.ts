@@ -1,10 +1,11 @@
-import { authServices } from './auth.service';
+
 import sendResponse from '../../utils/sendResponse';
 import httpStatus from 'http-status-codes';
 import catchAsync from '../../utils/catchAsync';
+import { AuthService } from './auth.service';
 
 const loginUser = catchAsync(async (req, res) => {
-  const result = await authServices.loginUser(req.body);
+  const result = await AuthService.loginUser(req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

@@ -1,40 +1,52 @@
 import config from '../../config';
-import AppError from '../../error/AppError';
-import { userServices } from '../User/user.service';
+import { TUser } from '../User/user.interface';
+import { UserModel } from '../User/user.model';
 import { TLoginUser } from './auth.interface';
-import httpStatus from 'http-status-codes';
 import bcrypt from 'bcrypt';
-import { createToken } from './auth.utils';
+import jwt from 'jsonwebtoken';
 
-const loginUser = async (payload: TLoginUser) => {
-  // checking if the user is exist
-  const user = await userServices.findUserByEmail(payload.email);
-
-  if (!user) {
-    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
-  }
-  // checking the user  blocked or not
-  const userStatus = user?.isBlocked;
-  if (userStatus === true) {
-    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
-  }
-
-  //checking if the password is correct
-  const isMatch = await bcrypt.compare(payload.password, user.password);
-  if (!isMatch) {
-    throw new AppError(httpStatus.FORBIDDEN, 'Password do not matched');
-  }
-
-  //create token and sent to the  client
-  const jwtPayload = {
-    userId: user._id,
-    role: user.role,
-  };
-
-  const accessToken = createToken(jwtPayload, config.secret as string, '1d');
-  return accessToken;
+const registerUser = async (payload: TUser) => {
+  const result = await UserModel.create(payload);
+  return result;
 };
+const loginUser = async (payload: TLoginUser) => {
+  const result = await UserModel.findOne({ email: payload.email });
+  if (!result) {
+    throw new Error('User not found');
+  }
 
-export const authServices = {
+  // Check for password and compare
+  if (!payload.password || !result.password) {
+    throw new Error('Password is incorrect or missing');
+  }
+
+  const isPasswordMatch = await bcrypt.compare(
+    payload.password,
+    result.password,
+  );
+
+  if (!isPasswordMatch) {
+    throw new Error('Password incorrect');
+  }
+
+  const token = jwt.sign(
+    { email: result.email, role: result.role },
+    config.secret as string,
+    { expiresIn: '2d' },
+  );
+
+  return { token, result };
+};
+const findUserByEmail = async (email: string) => {
+  try {
+    const user = await UserModel.findOne({ email });
+    return user; // Returns the user if found, or null if not
+  } catch (err: any) {
+    throw new Error('Error checking email in database');
+  }
+};
+export const AuthService = {
+  registerUser,
   loginUser,
+  findUserByEmail,
 };
