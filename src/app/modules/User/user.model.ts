@@ -15,6 +15,10 @@ const userSchema = new Schema<TUser>(
       required: [true, 'Please enter your email'],
       unique: true,
     },
+    phone: {
+      type: String,
+      required: [true, 'Please enter your phone number'],
+    },
     password: {
       type: String,
       required: [true, 'Please enter your password'],
@@ -22,8 +26,8 @@ const userSchema = new Schema<TUser>(
     },
     role: {
       type: String,
-      enum: ['admin', 'user'],
-      default: 'user',
+      enum: ['admin', 'customer'],
+      default: 'customer',
     },
     isBlocked: {
       type: Boolean,

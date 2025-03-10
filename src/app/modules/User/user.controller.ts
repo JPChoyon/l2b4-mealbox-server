@@ -10,11 +10,7 @@ const createUser = catchAsync(async (req, res) => {
     statusCode: httpStatus.CREATED,
     success: true,
     message: 'User registered successfully',
-    data: {
-      _id: result._id,
-      name: result.name,
-      email: result.email,
-    },
+    data:result
   });
 });
 export const userController = {

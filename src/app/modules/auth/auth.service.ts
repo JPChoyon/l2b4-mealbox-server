@@ -30,7 +30,12 @@ const loginUser = async (payload: TLoginUser) => {
   }
 
   const token = jwt.sign(
-    { email: result.email, role: result.role },
+    {
+      email: result.email,
+      phone: result.phone,
+      name: result.name,
+      role: result.role,
+    },
     config.secret as string,
     { expiresIn: '2d' },
   );

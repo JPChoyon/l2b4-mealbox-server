@@ -1,4 +1,3 @@
-
 import config from '../config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -31,7 +30,12 @@ const loginUser = async (payload: TLoginUser) => {
   }
 
   const token = jwt.sign(
-    { email: result.email, role: result.role },
+    {
+      email: result.email,
+      phone: result.phone,
+      name: result.name,
+      role: result.role,
+    },
     config.secret as string,
     { expiresIn: '2d' },
   );
@@ -42,7 +46,6 @@ const findUserByEmail = async (email: string) => {
   try {
     const user = await UserModel.findOne({ email });
     return user; // Returns the user if found, or null if not
- 
   } catch (err: any) {
     throw new Error('Error checking email in database');
   }
