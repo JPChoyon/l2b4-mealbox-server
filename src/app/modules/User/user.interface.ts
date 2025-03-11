@@ -5,7 +5,7 @@ export type TUser = {
   email: string;
   phone: string;
   password: string;
-  role: 'admin' | 'customer';
+  role: 'customer' | 'meal_provider';
   isBlocked: boolean;
 };
 export type TUserRole = keyof typeof USER_ROLE;

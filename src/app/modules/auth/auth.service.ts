@@ -1,6 +1,6 @@
 import config from '../../config';
-import { TUser } from '../User/user.interface';
-import { UserModel } from '../User/user.model';
+import { TUser } from '../user/user.interface';
+import { UserModel } from '../user/user.model';
 import { TLoginUser } from './auth.interface';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';

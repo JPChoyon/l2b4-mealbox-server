@@ -1,8 +1,8 @@
 import config from '../config';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { TUser } from '../modules/User/user.interface';
-import { UserModel } from '../modules/User/user.model';
+import { TUser } from '../modules/user/user.interface';
+import { UserModel } from '../modules/user/user.model';
 import { TLoginUser } from '../modules/auth/auth.interface';
 
 const registerUser = async (payload: TUser) => {

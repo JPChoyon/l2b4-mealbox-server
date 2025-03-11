@@ -26,12 +26,13 @@ const userSchema = new Schema<TUser>(
     },
     role: {
       type: String,
-      enum: ['admin', 'customer'],
+      enum: ['customer', 'meal_provider'],
       default: 'customer',
     },
     isBlocked: {
       type: Boolean,
       default: false,
+      
     },
   },
   {
@@ -39,6 +40,7 @@ const userSchema = new Schema<TUser>(
     versionKey: false,
   },
 );
+
 userSchema.pre('save', async function (next) {
   const user = this;
   user.password = await bcrypt.hash(

@@ -17,7 +17,7 @@ export const userValidationSchema = z.object({
       .string()
       .min(6, { message: 'Password must be at least 6 characters long' })
       .min(1, { message: 'Password is required' }),
-    role: z.enum(['admin', 'user']).default('user'),
+    role: z.enum(['customer', 'meal_provider']).default('customer'),
     isBlocked: z.boolean().default(false),
   }),
 });
