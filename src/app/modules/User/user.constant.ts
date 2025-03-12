@@ -1,4 +1,4 @@
 export const USER_ROLE = {
   customer: 'customer',
-  admin: 'admin',
+  meal_provider: 'meal_provider',
 } as const;
