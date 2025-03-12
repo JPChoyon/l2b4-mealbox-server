@@ -31,6 +31,7 @@ const loginUser = async (payload: TLoginUser) => {
 
   const token = jwt.sign(
     {
+      userId: result._id,
       email: result.email,
       phone: result.phone,
       name: result.name,
@@ -45,7 +46,7 @@ const loginUser = async (payload: TLoginUser) => {
 const findUserByEmail = async (email: string) => {
   try {
     const user = await UserModel.findOne({ email });
-    return user; // Returns the user if found, or null if not
+    return user;
   } catch (err: any) {
     throw new Error('Error checking email in database');
   }

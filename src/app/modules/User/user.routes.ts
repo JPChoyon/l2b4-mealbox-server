@@ -4,8 +4,9 @@ import validator from '../../middlewares/validator';
 import { userValidationSchema } from './user.validation';
 import { loginUserSchema } from '../auth/auth.validation';
 import { authController } from '../auth/auth.controller';
-// import auth from '../../middlewares/auth';
-// import { USER_ROLE } from './user.constant';
+import auth from '../../middlewares/auth';
+import { USER_ROLE } from './user.constant';
+
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ router.post(
   userController.createUser,
 );
 router.get(
-  '/user',
+  '/user',auth(USER_ROLE.customer),
   userController.getAllUsers,
 );
 router.post('/login', validator(loginUserSchema), authController.loginUser);
